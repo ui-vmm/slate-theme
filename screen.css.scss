@@ -1,0 +1,648 @@
+@charset "utf-8";
+@import 'normalize';
+@import 'variables';
+@import 'icon-font';
+// @import 'rtl'; // uncomment to switch to RTL format
+
+/*
+Copyright 2008-2013 Concur Technologies, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain
+a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations
+under the License.
+*/
+
+////////////////////////////////////////////////////////////////////////////////
+// GENERAL STUFF
+////////////////////////////////////////////////////////////////////////////////
+
+html, body {
+  color: $main-text;
+  padding: 0;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  @extend %default-font;
+  background-color: $main-bg;
+  height: 100%;
+  -webkit-text-size-adjust: none; /* Never autoresize text */
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// TABLE OF CONTENTS
+////////////////////////////////////////////////////////////////////////////////
+
+#toc > ul > li > a > span {
+  float: right;
+  background-color: #2484FF;
+  border-radius: 40px;
+  width: 20px;
+}
+
+.toc-wrapper {
+  transition: left 0.3s ease-in-out;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: fixed;
+  z-index: 30;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: $nav-width;
+  background-color: $nav-bg;
+  font-size: 14px;
+  font-weight: 100;
+
+  // language selector for mobile devices
+  .lang-selector {
+    display: none;
+    a {
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+    }
+  }
+
+  // This is the logo at the top of the ToC
+  .logo {
+    display: block;
+    max-width: 100%;
+    margin-bottom: $logo-margin;
+  }
+
+  &>.search {
+    position: relative;
+
+    input {
+      background: $nav-bg;
+      border-width: 0 0 1px 0;
+      border-color: $search-box-border-color;
+      padding: 6px 0 6px 20px;
+      box-sizing: border-box;
+      margin: $nav-v-padding $nav-padding;
+      width: $nav-width - ($nav-padding*2);
+      outline: none;
+      color: $nav-text;
+      border-radius: 0; /* ios has a default border radius */
+    }
+
+    &:before {
+      position: absolute;
+      top: 17px;
+      left: $nav-padding;
+      color: $nav-text;
+      @extend %icon-search;
+    }
+  }
+
+  .search-results {
+    margin-top: 0;
+    box-sizing: border-box;
+    height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition-property: height, margin;
+    transition-duration: 180ms;
+    transition-timing-function: ease-in-out;
+    background: $nav-subitem-bg;
+    &.visible {
+      height: 30%;
+      margin-bottom: 1em;
+    }
+
+    li {
+      margin: 1em $nav-padding;
+      line-height: 1;
+    }
+
+    a {
+      color: $nav-text;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+
+  // The Table of Contents is composed of multiple nested
+  // unordered lists.  These styles remove the default
+  // styling of an unordered list because it is ugly.
+  ul, li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    line-height: 45px;
+  }
+
+  li {
+    color: $nav-text;
+    transition-property: background;
+    transition-timing-function: linear;
+    transition-duration: 200ms;
+  }
+
+  // This is the currently selected ToC entry
+  .toc-link.active {
+    background-color: $nav-active-bg;
+    color: $nav-active-text;
+  }
+
+  // this is parent links of the currently selected ToC entry
+  .toc-link.active-parent {
+    background-color: $nav-active-parent-bg;
+    color: $nav-active-parent-text;
+  }
+
+  .toc-list-h2 {
+    display: none;
+    background-color: $nav-subitem-bg;
+    font-weight: 100;
+  }
+
+  .toc-h2 {
+    padding-left: $nav-padding + $nav-indent;
+    font-size: 14px;
+  }
+
+  .toc-footer {
+    padding: 1em 0;
+    margin-top: 1em;
+    border-top: 1px dashed $nav-footer-border-color;
+
+    li,a {
+      color: $nav-text;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    li {
+      font-size: 14px;
+      line-height: 1.7;
+      text-decoration: none;
+    }
+  }
+}
+
+.toc-link, .toc-footer li {
+  padding: 0 $nav-padding 0 $nav-padding;
+  display: block;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  color: $nav-text;
+  transition-property: background;
+  transition-timing-function: linear;
+  transition-duration: 130ms;
+}
+
+// button to show navigation on mobile devices
+#nav-button {
+  span {
+    display: block;
+    $side-pad: $main-padding / 2 - 8px;
+    padding: $side-pad $side-pad $side-pad;
+    background-color: rgba(#fff, 0.7);
+    transform-origin: 0 0;
+    transform: rotate(-90deg) translate(-100%, 0);
+    border-radius: 0 0 0 5px;
+  }
+  padding: 0 1.5em 5em 0; // increase touch size area
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  color: #000;
+  text-decoration: none;
+  font-weight: 100;
+  opacity: 0.7;
+  line-height: 16px;
+  img {
+    height: 16px;
+    vertical-align: bottom;
+  }
+
+  transition: left 0.3s ease-in-out;
+
+  &:hover { opacity: 1; }
+  &.open {left: $nav-width}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// PAGE LAYOUT AND CODE SAMPLE BACKGROUND
+////////////////////////////////////////////////////////////////////////////////
+
+.page-wrapper {
+  margin-left: $nav-width;
+  position: relative;
+  z-index: 10;
+  background-color: $main-bg;
+  min-height: 100%;
+
+  padding-bottom: 1px; // prevent margin overflow
+
+  // The dark box is what gives the code samples their dark background.
+  // It sits essentially under the actual content block, which has a
+  // transparent background.
+  // I know, it's hackish, but it's the simplist way to make the left
+  // half of the content always this background color.
+  .dark-box {
+    width: $examples-width;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='849' height='322' viewBox='0 0 849 322'%3E%3Cdefs%3E%3Cpath id='a' d='M0 302h828.781V0H0z'/%3E%3C/defs%3E%3Cg fill='none' fill-rule='evenodd' opacity='.4' transform='translate(10 10)'%3E%3Cpath stroke='%23538FCF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M1.774 192.766l4.774-4.122-4.774 4.122zM17.903 178.84l1.764-1.523 1.75 1.405M33.29 188.262l4.778 3.84'/%3E%3Cpath stroke='%23538FCF' stroke-linejoin='round' stroke-width='2' d='M424.901 232.239v10.805c0 4.55 3.474 8.237 7.757 8.237 4.284 0 7.755-3.687 7.755-8.237v-10.805h-15.512z'/%3E%3Cmask id='b' fill='%23fff'%3E%3Cuse xlink:href='%23a'/%3E%3C/mask%3E%3Cpath stroke='%23538FCF' stroke-linejoin='round' stroke-width='2' d='M427.897 232.238h9.415v-5.777h-9.415zM432.818 236.732v9.2M429.395 236.732s-.642 6.847 3.424 7.061M436.027 236.732c.122 3.966-2.294 4.158-3.209 4.386M432.657 251.28v6.092a8.85 8.85 0 0 0 8.85 8.849h49.43a8.85 8.85 0 0 1 0 17.7h-49.483a8.85 8.85 0 0 0-8.85 8.849v3.989' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M430.233 147.168H393.8a3.502 3.502 0 0 1-3.492-3.492V99.982a3.503 3.503 0 0 1 3.493-3.493h36.433a3.503 3.503 0 0 1 3.492 3.493v43.696a3.502 3.502 0 0 1-3.493 3.492zM150.023 123.2H64.226a3.343 3.343 0 0 1-3.333-3.332v-13.451c0-1.833 1.5-3.333 3.333-3.333h85.797c1.833 0 3.333 1.5 3.333 3.333v13.45c0 1.834-1.5 3.334-3.333 3.334zM128.34 21.847c0-10.313-8.36-18.673-18.674-18.673-8.206 0-15.16 5.3-17.665 12.658a15.386 15.386 0 0 0-2.94-.289c-8.44 0-15.282 6.842-15.282 15.282 0 8.44 6.842 15.281 15.282 15.281h39.279c6.698 0 12.129-5.43 12.129-12.129s-5.431-12.13-12.13-12.13z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M83.321 39.779a10.638 10.638 0 0 1-4.899-8.954c0-5.73 4.552-10.415 10.23-10.631M119.444 113.142a3.348 3.348 0 1 1-6.697.001 3.348 3.348 0 0 1 6.697 0zM131.69 113.142a3.348 3.348 0 1 1-6.696.002 3.348 3.348 0 0 1 6.696-.002zM143.938 113.142a3.348 3.348 0 1 1-6.697.001 3.348 3.348 0 0 1 6.697 0zM70.661 116.491h33.078v-6.697H70.661zM150.023 143.319H64.226a3.343 3.343 0 0 1-3.333-3.334v-13.45c0-1.834 1.5-3.334 3.333-3.334h85.797c1.833 0 3.333 1.5 3.333 3.334v13.45c0 1.834-1.5 3.334-3.333 3.334z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M119.444 133.26a3.348 3.348 0 1 1-6.697 0 3.348 3.348 0 0 1 6.697 0zM131.69 133.26a3.348 3.348 0 1 1-6.696 0 3.348 3.348 0 0 1 6.696 0zM143.938 133.26a3.348 3.348 0 1 1-6.697 0 3.348 3.348 0 0 1 6.697 0zM70.661 136.608h33.078v-6.696H70.661zM150.023 163.436H64.226a3.343 3.343 0 0 1-3.333-3.333v-13.45c0-1.834 1.5-3.334 3.333-3.334h85.797c1.833 0 3.333 1.5 3.333 3.333v13.451c0 1.833-1.5 3.333-3.333 3.333z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M119.444 153.377a3.35 3.35 0 1 1-6.698 0 3.35 3.35 0 0 1 6.698 0zM131.69 153.377a3.349 3.349 0 1 1-6.697 0 3.349 3.349 0 0 1 6.697 0zM143.938 153.377a3.35 3.35 0 1 1-6.699 0 3.35 3.35 0 0 1 6.699 0zM70.661 156.726h33.078v-6.697H70.661zM64.762 166.87h9.962v-3.434h-9.962zM138.956 166.87h9.962v-3.434h-9.962zM567.741 183.096h-85.796a3.343 3.343 0 0 1-3.334-3.333v-13.45c0-1.834 1.5-3.334 3.334-3.334h85.796c1.834 0 3.334 1.5 3.334 3.333v13.451c0 1.833-1.5 3.333-3.334 3.333z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M537.163 173.038a3.348 3.348 0 1 1-6.696.001 3.348 3.348 0 0 1 6.696-.001zM549.41 173.038a3.348 3.348 0 1 1-6.697 0 3.348 3.348 0 0 1 6.697 0zM561.656 173.038a3.348 3.348 0 1 1-6.696.001 3.348 3.348 0 0 1 6.696-.001zM488.38 176.386h33.078v-6.697H488.38zM567.741 203.213h-85.796a3.343 3.343 0 0 1-3.334-3.333v-13.45c0-1.834 1.5-3.334 3.334-3.334h85.796c1.834 0 3.334 1.5 3.334 3.333v13.451c0 1.833-1.5 3.333-3.334 3.333z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M537.163 193.155a3.348 3.348 0 1 1-6.696.001 3.348 3.348 0 0 1 6.696-.001zM549.41 193.155a3.348 3.348 0 1 1-6.697 0 3.348 3.348 0 0 1 6.697 0zM561.656 193.155a3.348 3.348 0 1 1-6.696.001 3.348 3.348 0 0 1 6.696-.001zM488.38 196.503h33.078v-6.696H488.38zM567.741 223.332h-85.796a3.343 3.343 0 0 1-3.334-3.333v-13.451c0-1.834 1.5-3.334 3.334-3.334h85.796c1.834 0 3.334 1.5 3.334 3.334v13.45c0 1.834-1.5 3.334-3.334 3.334z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M537.163 213.273a3.348 3.348 0 1 1-6.696 0 3.348 3.348 0 0 1 6.696 0zM549.41 213.273a3.348 3.348 0 1 1-6.696 0 3.348 3.348 0 0 1 6.696 0zM561.656 213.273a3.348 3.348 0 1 1-6.696 0 3.348 3.348 0 0 1 6.696 0zM488.38 216.621h33.078v-6.696H488.38zM697.977 284.472h26.089v-5.281h-26.089zM482.48 226.765h9.962v-3.434h-9.962zM556.676 226.765h9.962v-3.434h-9.962zM688.856 287.221h44.331v-2.708h-44.331zM349.864 62.318c0 15.545-12.602 28.146-28.146 28.146-15.543 0-28.145-12.601-28.145-28.146 0-15.544 12.602-28.145 28.145-28.145 15.544 0 28.146 12.6 28.146 28.145zM377.389 255.956H252.946c-1.1 0-2-.9-2-2v-64.863c0-1.101.9-2 2-2h124.443c1.1 0 2 .899 2 2v64.863c0 1.1-.9 2-2 2z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M258.103 255.956v-62.48h114.322v62.48' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M267.388 231.486h97.202v-19.73h-97.202zM267.388 205.662h17.409M290.31 224.715h51.358M298.725 218.72h33.368M267.388 201.31h8.705M268.839 236.418h15.958M319.906 204.792h44.684M268.839 241.641h22.922M268.839 251.216h22.922M268.839 246.574h22.922M303.481 236.418h15.96M303.481 241.641h22.923M303.481 251.216h22.923M303.481 246.574h22.923M338.881 236.418h15.959M338.881 241.641h22.922M338.881 251.216h22.922M338.881 246.574h22.922M819.928 57.709h-28.03a3.26 3.26 0 0 1-3.25-3.25V9.02a3.26 3.26 0 0 1 3.25-3.25h28.03a3.26 3.26 0 0 1 3.25 3.25v45.438a3.26 3.26 0 0 1-3.25 3.25zM823.178 47.263h-34.53' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M808.017 52.49a2.103 2.103 0 1 1-4.207.002 2.103 2.103 0 0 1 4.207-.001zM495.683 86.322l3.748-3.748a3.058 3.058 0 0 1 2.158-.895h9.755c.432 0 .78.35.78.782v3.86M546.932 86.322l3.749-3.748a3.054 3.054 0 0 1 2.158-.895h9.755c.43 0 .78.35.78.782v3.86' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-linejoin='round' stroke-width='2' d='M92.543 298.439h-44.34c-19.005 0-19.95-28.595-.964-29.426a31.054 31.054 0 0 1 7.446.566l.187-.044c2.08-15.074 15.014-26.681 30.658-26.681.885 0 1.761.037 2.627.109l.11-.153c3.745-21.425 22.654-37.636 45.258-37.165 23.712.493 43.19 19.704 43.99 43.407a45.217 45.217 0 0 1-1.122 11.699l.438.129c12.513 6.487 21.29 19.179 22.256 34.002v3.557h74.091c6.417 0 11.62-5.202 11.62-11.619v-20.806' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M692.804 164.959h-40.828a1.551 1.551 0 0 1-1.547-1.547v-36.086c0-.85.696-1.546 1.547-1.546h40.828c.85 0 1.547.696 1.547 1.546v36.086c0 .85-.696 1.547-1.547 1.547zM694.35 132.409H650.43' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-dasharray='4' stroke-width='2' d='M322.04 90.463v96.63M250.945 226.553h-80.373M107.124 163.436v49.696M124.994 46.106v8.947a3.57 3.57 0 0 0 3.57 3.571h58.868a3.57 3.57 0 0 1 3.571 3.57V130.3a3.57 3.57 0 0 1-3.57 3.57h-34.078M92.543 46.106v20.762c0 2.096-1.7 3.797-3.797 3.797H33.377' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M118.275 28.463c0 5.517-4.474 9.99-9.99 9.99-5.517 0-9.99-4.473-9.99-9.99 0-5.518 4.472-9.989 9.99-9.989 5.517 0 9.99 4.471 9.99 9.99zM108.285 38.453v32.212M497.085 115.341v38.881M548.335 115.341v38.881' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-dasharray='4' stroke-width='2' d='M805.913 57.709v53.23' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M536.825 223.332v2' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-dasharray='3.981,3.981' stroke-width='2' d='M536.825 229.312v63.3a4.592 4.592 0 0 1-4.592 4.592h-216.18a4.591 4.591 0 0 1-4.592-4.592v-22.607' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M311.461 268.014v-2M490.193 148.144l6.965 6.964 6.818-6.818M101.394 63.7l6.964 6.965 6.818-6.818M555.226 121.828l-6.964-6.963-6.818 6.818M102.204 28.403a6.081 6.081 0 0 1 12.148-.34M640.512 19.673C640.512 9.36 632.152 1 621.838 1c-8.206 0-15.16 5.301-17.665 12.66a15.306 15.306 0 0 0-2.94-.29c-8.44 0-15.282 6.841-15.282 15.282 0 8.44 6.842 15.281 15.282 15.281h39.279c6.698 0 12.129-5.43 12.129-12.129s-5.431-12.13-12.13-12.13z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M595.493 37.605c-2.945-1.895-4.899-5.2-4.899-8.955 0-5.728 4.551-10.414 10.23-10.63M630.445 26.289c0 5.518-4.472 9.989-9.989 9.989s-9.989-4.471-9.989-9.99c0-5.516 4.472-9.987 9.99-9.987 5.516 0 9.988 4.47 9.988 9.988zM620.456 36.278V68.49M613.566 61.527l6.964 6.964 6.818-6.818M540.263 69.474l6.964 6.964 6.818-6.818M666.52 147.734h40.987a4.045 4.045 0 0 1 4.045 4.046v67.409' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M673.484 140.843l-6.965 6.963 6.818 6.82M614.376 26.23a6.081 6.081 0 0 1 12.148-.342M264.13 162.47h-33.333c-1.1 0-2-.9-2-2v-22.696c0-1.1.9-2 2-2h33.333c1.101 0 2 .9 2 2v22.695c0 1.1-.899 2-2 2z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M228.797 154.151c.58 0 15.088-7.351 15.088-7.351l8.125 6.964 5.686-2.715 8.434 5.23M255.975 142.738a2.03 2.03 0 1 1-4.062 0 2.03 2.03 0 0 1 4.062 0zM488.642 33.605h-33.333c-1.101 0-2-.9-2-2V8.911c0-1.101.899-2 2-2h33.333c1.1 0 2 .899 2 2v22.694c0 1.1-.9 2-2 2z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M454.082 7.516l17.893 15.45 18.402-14.785M467.913 19.459l-13.83 13.54M476.34 19.459l13.528 13.54M38.082 192.942c.16.287.251.618.251.968v22.695c0 1.1-.899 2-2 2H3c-1.1 0-2-.9-2-2V193.91c0-.813.491-1.516 1.191-1.828M15.605 204.459l-13.831 13.54M24.032 204.459l13.527 13.54M827.781 132.412c0 11.858-9.613 21.472-21.472 21.472-11.858 0-21.47-9.614-21.47-21.472s9.612-21.472 21.47-21.472c11.86 0 21.472 9.614 21.472 21.472zM547.154 75.524V35.242a4.592 4.592 0 0 1 4.591-4.591h34.206' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-dasharray='4' stroke-width='2' d='M652.64 31.803h23.48a4.278 4.278 0 0 1 4.279 4.278v88.591' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M429.596 19.459a2.94 2.94 0 1 1-5.88 0 2.94 2.94 0 0 1 5.88 0zM250.404 108.886a2.941 2.941 0 0 1-5.882 0 2.941 2.941 0 0 1 5.882 0zM98.05 298.06a2.94 2.94 0 1 1-5.878 0 2.94 2.94 0 0 1 5.879 0zM67.702 203.936a2.941 2.941 0 1 1-5.881-.003 2.941 2.941 0 0 1 5.881.003zM453.309 19.459H429.51M62.131 204.275H38.333M247.464 136.048V112.25M31.377 82.232H7.667c-1.1 0-2-.9-2-2V60.333c0-1.101.9-2 2-2h23.71c1.101 0 2 .899 2 2v19.899c0 1.1-.899 2-2 2z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M12.537 58.16V52.3c0-3.921 3.208-7.13 7.13-7.13 3.921 0 7.13 3.209 7.13 7.13v6.034M22.207 68.55a2.685 2.685 0 1 1-5.37 0 2.685 2.685 0 0 1 5.37 0zM19.523 71.235v4.57M813.405 38.3h-14.984c-1.1 0-2-.899-2-2V23.926c0-1.1.9-2 2-2h14.984c1.101 0 2 .9 2 2V36.3c0 1.101-.899 2-2 2z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M801.128 21.81v-4.017a4.897 4.897 0 0 1 4.884-4.884c2.686 0 4.885 2.197 4.885 4.884v4.134M807.752 28.927a1.839 1.839 0 1 1-3.677.001 1.839 1.839 0 0 1 3.677 0zM805.913 30.766v3.761' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-dasharray='4' stroke-width='2' d='M478.611 193.475h-62.033a4.592 4.592 0 0 1-4.59-4.59V147.96' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M245.298 266.014H384.65a8.666 8.666 0 0 0 8.666-8.666v-1.393H236.63v1.393a8.666 8.666 0 0 0 8.667 8.666zM237.194 259.255h155.497M759.672 279.151H662.37c-1.099 0-2-.9-2-2v-55.4c0-1.1.901-2 2-2h97.302c1.101 0 2 .9 2 2v55.4c0 1.1-.899 2-2 2z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M665.939 273.924h90.165v-49.278h-90.165zM430.233 140.708H393.8a3.503 3.503 0 0 1-3.492-3.493V99.98a3.502 3.502 0 0 1 3.493-3.492h36.433a3.502 3.502 0 0 1 3.492 3.492v37.235a3.503 3.503 0 0 1-3.493 3.493z' mask='url(%23b)'/%3E%3Cpath fill='%23538FCF' d='M400.143 122.296l1.042-1.464a3.959 3.959 0 0 0 2.87 1.22c1.057 0 1.57-.488 1.57-1.003 0-1.598-5.198-.5-5.198-3.9 0-1.502 1.3-2.748 3.426-2.748 1.435 0 2.626.434 3.519 1.26l-1.07 1.407c-.73-.675-1.705-.987-2.626-.987-.826 0-1.286.364-1.286.906 0 1.436 5.187.475 5.187 3.846 0 1.651-1.18 2.898-3.617 2.898-1.733 0-2.978-.581-3.817-1.435M408.27 122.296l1.043-1.464a3.959 3.959 0 0 0 2.87 1.22c1.057 0 1.57-.488 1.57-1.003 0-1.598-5.198-.5-5.198-3.9 0-1.502 1.3-2.748 3.426-2.748 1.436 0 2.626.434 3.519 1.26l-1.07 1.407c-.73-.675-1.705-.987-2.625-.987-.827 0-1.287.364-1.287.906 0 1.436 5.187.475 5.187 3.846 0 1.651-1.18 2.898-3.617 2.898-1.732 0-2.978-.581-3.817-1.435M423.4 119.06c0-1.599-.976-2.83-2.83-2.83h-1.64v5.645h1.64c1.786 0 2.83-1.286 2.83-2.816zm-6.392 4.508v-9.03h3.562c2.83 0 4.793 1.8 4.793 4.521 0 2.722-1.964 4.51-4.793 4.51h-3.563z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M511.149 108.084h-28.127a1.75 1.75 0 0 1-1.75-1.75V88.072c0-.967.783-1.75 1.75-1.75h28.127c.966 0 1.75.783 1.75 1.75v18.262a1.75 1.75 0 0 1-1.75 1.75zM562.399 108.084H534.27a1.75 1.75 0 0 1-1.75-1.75V88.072c0-.967.784-1.75 1.75-1.75h28.128c.966 0 1.75.783 1.75 1.75v18.262a1.75 1.75 0 0 1-1.75 1.75zM791.555 130.403l5.103 4.996 4.996-4.892M821.515 134.017l-5.103-4.996-4.996 4.892' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M796.464 134.91c-.202-.8-.31-1.637-.31-2.498 0-5.608 4.546-10.155 10.156-10.155.833 0 1.642.099 2.417.289M816.038 129.49c.277.926.427 1.906.427 2.922 0 5.608-4.547 10.155-10.156 10.155-.498 0-.987-.036-1.465-.104' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-linejoin='round' stroke-width='2' d='M811.638 197.588v10.806c0 4.548 3.473 8.237 7.756 8.237s7.756-3.689 7.756-8.237v-10.806h-15.512zM814.633 197.588h9.414v-5.776h-9.414zM819.554 202.082v9.2M816.131 202.082s-.642 6.847 3.423 7.062M822.764 202.082c.12 3.967-2.295 4.159-3.21 4.387M819.394 216.631v30.931a7.29 7.29 0 0 1-7.29 7.29h-50.432' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M672.069 273.924h9v-28.421h-9zM685.727 273.925h9V232.04h-9zM699.385 273.924h9v-33.99h-9zM713.043 273.924h9v-20.942h-9zM726.701 273.924h9v-33.99h-9zM740.359 273.925h9V234.29h-9zM595.698 254.851a2.94 2.94 0 1 1-5.88 0 2.94 2.94 0 0 1 5.88 0zM622.236 218.072a2.94 2.94 0 1 1-5.88 0 2.94 2.94 0 0 1 5.88 0zM659.38 254.851h-63.682' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-linejoin='round' stroke-width='2' d='M744.253 81.376c0 7.7-6.243 13.942-13.943 13.942-7.7 0-13.944-6.242-13.944-13.942s6.243-13.943 13.944-13.943c7.7 0 13.943 6.242 13.943 13.943z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-linejoin='round' stroke-width='2' d='M735.877 81.376l-8.472-4.892v9.785z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M7.322 197.307v-18.356H32.93v18.358l-13.262 10.43-12.345-10.432' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M1.774 192.516l17.894 15.222 18.4-14.785' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13.031 185.897h14.55' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M7.322 197.307v-18.356H32.93v18.358' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M12.291 195.484h15.29v-4.896h-15.29z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-dasharray='4' stroke-width='2' d='M784.838 132.412h-47.72a6.808 6.808 0 0 1-6.808-6.81V95.32' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M236.045 27.84c-.657.163-7.44 17.89-7.44 17.89h3.719v6.345h6.347V45.73h3.721l-6.347-17.89zM235.498 19.524v-8.559M225.37 36.641l-7.702 5.135M225.37 25.8l-7.702-5.42M246.195 25.8l8.273-5.42M246.195 36.641l8.273 5.135' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-linejoin='round' stroke-width='2' d='M321.719 81.178c15.088-6.964 13.928-30.467 13.928-30.467-12.767 0-13.928-7.254-13.928-7.254s-1.16 7.254-13.928 7.254c0 0-1.16 23.503 13.928 30.467z' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-width='2' d='M315.51 61.302l5.515 5.514 8.994-8.995' mask='url(%23b)'/%3E%3Cpath stroke='%23538FCF' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M390.237 57.131v-8.935M387.813 61.462h-7.204M393.66 61.462h6.348M390.237 64.885V76.44M607.456 141.614v-8.935M605.031 145.945h-7.203M610.88 145.945h6.347M607.456 149.368v11.554M192.458 180.377v-8.934M190.033 184.709h-7.203M195.882 184.709h6.348M192.458 188.132v11.554M619.296 254.244V221.62' mask='url(%23b)'/%3E%3C/g%3E%3C/svg%3E%0A");    position: absolute;
+    background-size: 340px;
+    // background-attachment: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+
+  .lang-selector {
+    position: fixed;
+    z-index: 50;
+    border-bottom: 1px solid $lang-select-active-bg;
+  }
+}
+
+.lang-selector {
+  display: flex;
+  background-color: $lang-select-bg;
+  width: 100%;
+  font-weight: 100;
+  overflow-x: auto;
+  a {
+    display: inline;
+    color: $lang-select-text;
+    text-decoration: none;
+    padding: 0 20px;
+    line-height: 50px;
+    outline: 0;
+
+    &:active, &:focus {
+      background-color: $lang-select-pressed-bg;
+      color: $lang-select-pressed-text;
+    }
+
+    &.active {
+      background-color: $lang-select-active-bg;
+      color: $lang-select-active-text;
+    }
+  }
+
+  &:after {
+    content: '';
+    clear: both;
+    display: block;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CONTENT STYLES
+////////////////////////////////////////////////////////////////////////////////
+// This is all the stuff with the light background in the left half of the page
+
+.content {
+  // fixes webkit rendering bug for some: see #538
+  -webkit-transform: translateZ(0);
+  // to place content above the dark box
+  position: relative;
+  z-index: 30;
+
+  &:after {
+    content: '';
+    display: block;
+    clear: both;
+  }
+
+  a {
+    color: #9ba7a7;
+  }
+
+  &>h1, &>h2, &>h3, &>h4, &>h5, &>h6, &>p, &>table, &>ul, &>ol, &>aside, &>dl {
+    margin-right: $examples-width;
+    padding: 0 $main-padding;
+    box-sizing: border-box;
+    display: block;
+    color: #9ba7a7;
+    font-weight: 100;
+
+    @extend %left-col;
+  }
+
+  &>ul, &>ol {
+    padding-left: $main-padding + 15px;
+  }
+
+  // the div is the tocify hidden div for placeholding stuff
+  &>h1, &>h2, &>div {
+    clear:both;
+  }
+
+  h1 {
+    @extend %header-font;
+    font-size: 25px;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: $h1-margin-bottom;
+    line-height: 50px;
+    margin-top: 2em;
+    border-top: 1px solid $border-color-content;
+    border-bottom: 1px solid $border-color-content;
+    background: rgba(0, 0, 0, .1);
+  }
+
+  h1:first-child, div:first-child + h1 {
+    border-top-width: 0;
+    margin-top: 0;
+  }
+
+  h2 {
+    @extend %header-font;
+    font-size: 19px;
+    margin-top: 4em;
+    margin-bottom: 0;
+    border-top: 1px solid $border-color-content;
+    padding-top: 1.2em;
+    padding-bottom: 1.2em;
+    // background-image: linear-gradient(to bottom, rgba(#fff, 0.2), rgba(#fff, 0));
+  }
+
+  // h2s right after h1s should bump right up
+  // against the h1s.
+  h1 + h2, h1 + div + h2 {
+    margin-top: $h1-margin-bottom * -1;
+    border-top: none;
+  }
+
+  h3, h4, h5, h6 {
+    @extend %header-font;
+    font-size: 15px;
+    margin-top: 2.5em;
+    margin-bottom: 0.8em;
+  }
+
+  h4, h5, h6 {
+    font-size: 10px;
+  }
+
+  hr {
+    margin: 2em 0;
+    border-top: 2px solid $examples-bg;
+    border-bottom: 2px solid $main-bg;
+  }
+
+  table {
+    margin-bottom: 1em;
+    overflow: auto;
+    th,td {
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.6;
+      code {
+        white-space: nowrap;
+      }
+    }
+
+    th {
+      background: rgba(0, 0, 0, .1);
+      padding: 10px 15px;
+      border-bottom: 1px solid $border-color-content;
+      vertical-align: bottom;
+      font-weight: 100;
+    }
+
+    td {
+      padding: 10px 15px;
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid $border-color-content;
+        
+        &:hover {
+          background: rgba(0, 0, 0, .1);
+        }
+      }
+    }
+  }
+
+  dt {
+    font-weight: 100;
+  }
+
+  dd {
+    margin-left: 15px;
+  }
+
+  p, li, dt, dd {
+    line-height: 1.6;
+    margin-top: 0;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  code {
+    background-color: rgba(0,0,0,0.05);
+    padding: 3px;
+    border-radius: 3px;
+    @extend %break-words;
+    @extend %code-font;
+  }
+
+  pre>code {
+    background-color: transparent;
+    padding: 0;
+  }
+
+  aside {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    background: $aside-notice-bg;
+    line-height: 1.6;
+    color: #0b68b9;
+
+    &.warning {
+      background-color: $aside-warning-bg;
+      color: #cd0000;
+    }
+
+    &.success {
+      background-color: $aside-success-bg;
+      color: #00994c;
+    }
+  }
+
+  aside:before {
+    vertical-align: middle;
+    padding-right: 0.5em;
+    font-size: 14px;
+  }
+
+  aside.notice:before {
+    @extend %icon-info-sign;
+  }
+
+  aside.warning:before {
+    @extend %icon-exclamation-sign;
+  }
+
+  aside.success:before {
+    @extend %icon-ok-sign;
+  }
+
+  .search-highlight {
+    padding: 2px;
+    margin: -3px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 234, 0, 0.8);
+    background: linear-gradient(to top left, rgba(255, 234, 0, 0.8) 0%, rgba(255, 234, 0, 0.8) 100%);
+    color: rgba(0, 0, 0, .7);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CODE SAMPLE STYLES
+////////////////////////////////////////////////////////////////////////////////
+// This is all the stuff that appears in the right half of the page
+
+.content {
+  &>div.highlight {
+    background: unset !important;
+    clear:none;
+  }
+
+  div.highlight, blockquote {
+    color: rgba(0, 0, 0, 0.65);
+
+    margin: 0;
+    width: $examples-width;
+
+    float:right;
+    clear:right;
+
+    box-sizing: border-box;
+
+    @extend %right-col;
+
+    &>p {
+      background-color: $code-bg;
+      margin: 0 15px;
+      padding: 10px 15px;
+    }
+
+    a {
+      color: rgba(0, 0, 0, 0.65);
+      text-decoration: none;
+      border-bottom: dashed 1px $border-color-content;
+    }
+  }
+
+  pre {
+    @extend %code-font;
+    padding: 10px 15px;
+    margin: 0 15px;
+    background-color: $code-bg;
+  }
+
+  blockquote {
+    &>p {
+      background-color: $code-annotation-bg;
+      color: #9ba7a7;
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// RESPONSIVE DESIGN
+////////////////////////////////////////////////////////////////////////////////
+// These are the styles for phones and tablets
+// There are also a couple styles disperesed
+
+@media (max-width: $tablet-width) {
+  .toc-wrapper {
+    left: -$nav-width;
+
+    &.open {
+      left: 0;
+    }
+  }
+
+  .page-wrapper {
+    margin-left: 0;
+  }
+
+  #nav-button {
+    display: block;
+  }
+
+  .toc-link {
+    padding: 10px 15px;
+  }
+}
+
+@media (max-width: $phone-width) {
+  .dark-box {
+    display: none;
+  }
+
+  %left-col {
+    margin-right: 0;
+  }
+
+  .toc-wrapper .lang-selector {
+    display: block;
+  }
+
+  .page-wrapper .lang-selector {
+    display: none;
+  }
+
+  %right-col {
+    width: auto;
+    float: none;
+  }
+
+  %right-col + %left-col {
+    margin-top: $main-padding;
+  }
+}
+
+.highlight .c, .highlight .cm, .highlight .c1, .highlight .cs {
+  color: #909090;
+}
+
+.highlight, .highlight .w {
+  background-color: $code-bg;
+}
+
+.copy-clipboard {
+  float: right;
+  fill: #9DAAB6;
+  cursor: pointer;
+  opacity: 0.4;
+  height: 18px;
+  width: 18px;
+}
+
+.copy-clipboard:hover {
+  opacity: 0.8;
+}
